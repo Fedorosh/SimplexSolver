@@ -1,0 +1,23 @@
+# import Pkg
+# Pkg.add("JuMP")
+using JuMP
+include("Simplex.jl")
+
+model = Model()
+
+@variable(model, 0 <= x <= 2 )
+@variable(model, 0 <= y <= 30 )
+@variable(model, z == 30 , Int)
+
+@objective(model, Max, 5*x + 3*y )
+
+@constraint(model, 1x + 5y <= 3.0)
+@constraint(model, 3y <= 6.0)
+@constraint(model, x <= 3.0)
+@constraint(model, 1x + 5y >= 3.0)
+@constraint(model, 2y >= 5.0)
+@constraint(model, y == 5.0)
+@constraint(model, x + y == 2y + 5.0)
+
+showModel(model)
+solve(model)
