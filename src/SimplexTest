@@ -5,19 +5,13 @@ include("Simplex.jl")
 
 model = Model()
 
-@variable(model, 0 <= x <= 2 )
-@variable(model, 0 <= y <= 30 )
-@variable(model, z == 30 , Int)
+@variable(model, 0 <= x1 )
+@variable(model, 0 <= x2 )
 
-@objective(model, Max, 5*x + 3*y )
+@objective(model, Max, 340*x1 + 404*x2 )
 
-@constraint(model, 1x + 5y <= 3.0)
-@constraint(model, 3y <= 6.0)
-@constraint(model, x <= 3.0)
-@constraint(model, 1x + 5y >= 3.0)
-@constraint(model, 2y >= 5.0)
-@constraint(model, y == 5.0)
-@constraint(model, x + y == 2y + 5.0)
+@constraint(model, 420x1 + 760x2 <= 5480.0)
+@constraint(model, 9x1 + 5x2 <= 61.0)
 
 showModel(model)
 solve(model)
