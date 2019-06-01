@@ -12,6 +12,8 @@ model = Model()
 
 @constraint(model, 420x1 + 760x2 <= 5480.0)
 @constraint(model, 9x1 + 5x2 <= 61.0)
+# @constraint(model, 1x1 + 2x2 >= 3.0)
+# @constraint(model, 5x1 + 6x2 == 8.0)
 
 showModel(model)
 solve(model)
