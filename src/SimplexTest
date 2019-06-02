@@ -16,4 +16,5 @@ model = Model()
 # @constraint(model, 5x1 + 6x2 == 8.0)
 
 showModel(model)
+println()
 solve(model)
