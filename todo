@@ -1,3 +1,9 @@
 Algorytm
+    Dodaj śledzenie jak są poukładane zmienne w bazie i liczenie wartości funkcji f_val(fa)
+    Przetestuj inne przykłady
+    Przenieś warunek na max i min do buildMatrix()
+    Wyczyść kod - porozdzielaj kod na nowe metody
+    Dodaj opisy metod i zmień ich nazwy by oznaczyć, które są prywatne
+    Pousuwaj niepotrzebne komentarze
 Generyczność
-  Dorób obsługę większej ilości typów (nie tylko bin, int, lower_bound, etc)
+    Dorób obsługę większej ilości typów? (nie tylko bin, int, lower_bound, etc)

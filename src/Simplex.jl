@@ -83,6 +83,20 @@ function showModel(model::Model)
     showConstr(model)
 end
 
+function showProblem(fa, matrix, obj, zj, delta_j, Bi)
+    println("Problem:")
+    # objective function
+    println("    ", fa)
+    # simplex matrix
+    for i in 1:size(matrix, 1)
+        print(obj[i], " ")
+        println(matrix[i,:])
+    end
+    println("    ", zj)
+    println("    ", delta_j)
+    println(Bi)
+end
+
 function addKeys(vars, constraints, number_of_constraints)
     for i in 1:number_of_constraints
         con = constraint_object(constraints[i])
@@ -189,11 +203,24 @@ function findMin(arr::Array)
     return findMax(-arr)
 end
 
+function foundOptimum(arr::Array)
+    for i in arr
+        if i > 0
+            return false
+        end
+    end
+    return true
+end
+
+function f_val(fa)
+    
+end
+
 function solve(model::Model)
     # get the objctive function
     f = objective_function(model)
 
-    #make a matrix, pass info on variables
+    # make a matrix, pass info on variables
     # matrix - simplex matrix
     # obj - coefficient of the objective function
     # vars - dictionary of variable names and their indexes
@@ -208,6 +235,7 @@ function solve(model::Model)
         fa[index] = f.terms.vals[i]
     end
 
+    # move this to buildMatrix()
     obj_sense = objective_sense(model)
     if obj_sense == MOI.MAX_SENSE
         # Max
@@ -222,7 +250,10 @@ function solve(model::Model)
     end
 
     zj = zeros(num_var + num_hvar)
-    delta_j = fa
+    delta_j = zeros(num_var + num_hvar)
+    for i in 1:(num_var + num_hvar)
+        delta_j[i] = fa[i]
+    end
 
     highest_dj = findMax(delta_j)
     Bi = zeros(length(matrix[:,end]))
@@ -230,27 +261,58 @@ function solve(model::Model)
         Bi[i] = matrix[i, end] / matrix[i, highest_dj]
     end
     lowest_Bi = findMin(Bi)
+    iter = 1
+    println("Iteration nr ", iter)
+    showProblem(fa, matrix, obj, zj, delta_j, Bi)
+    println()
+    # FIRST ITERATION OVER
 
+    # MAIN LOOP
+    while !foundOptimum(delta_j)
+        # building the next simplex matrix
+        obj[lowest_Bi] = fa[highest_dj]
+        for i in 1:length(matrix[:,1])
+            if i != lowest_Bi
+                for j in 1:length(matrix[1,:])
+                    if j != highest_dj
+                        buff = matrix[lowest_Bi, j] * matrix[i, highest_dj]
+                        buff /= matrix[lowest_Bi, highest_dj]
+                        matrix[i,j] -= buff
+                    end
+                end
+            end
+        end
+        let divider = matrix[lowest_Bi, highest_dj]
+            for i in 1:length(matrix[lowest_Bi, :])
+                matrix[lowest_Bi, i] /= divider
+            end
+        end
+        matrix[:,  highest_dj] = zeros( length(matrix[:,  highest_dj]) )
+        matrix[lowest_Bi, highest_dj] = 1
 
+        # calc zj
+        zj = zeros(length(zj))
+        for i in 1:length(zj)
+            for j in 1:length(matrix[:,1])
+                zj[i] += obj[j] * matrix[j,i]
+            end
+        end
 
-    #  calc delta_j
-    # for i in 1:length(fa)
-    #     delta_j[i] = fa[i] - zj[i]
-    # end
+        # calc delta_j
+        for i in 1:length(fa)
+            delta_j[i] = fa[i]
+            delta_j[i] -= zj[i]
+        end
 
-    # show what's going on
-    println("Problem:")
-    # objective function
-    println("    ", fa)
-    # simplex matrix
-    for i in 1:size(matrix, 1)
-        print(obj[i], " ")
-        println(matrix[i,:])
+        highest_dj = findMax(delta_j)
+        Bi = zeros(length(matrix[:,end]))
+        for i in 1:length(Bi)
+            Bi[i] = matrix[i, end] / matrix[i, highest_dj]
+        end
+        lowest_Bi = findMin(Bi)
+        iter += 1
+        println("Iteration nr ", iter)
+        showProblem(fa, matrix, obj, zj, delta_j, Bi)
+        println()
     end
-    println("    ", zj)
-    println("    ", delta_j)
-    println(Bi)
-    # println(vars)
-    # println("vars: ", num_var)
-    # println("hvars: ", num_hvar)
 end
