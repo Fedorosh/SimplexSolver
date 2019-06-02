@@ -6,8 +6,6 @@ function showObj(model::Model)
     end
     f = objective_function(model)
     println(f)
-    # println(f.terms.keys)
-    # println(f.terms.vals)
 end
 
 function showConstr(model::Model)
@@ -121,7 +119,6 @@ function buildMatrix(model::Model)
     # make enough space for all constraints, variables and helping variables
     matrix_vars = num_var + num_less + num_great
     matrix = zeros(num_constr, matrix_vars + 1) # + 1 is for the absolute term
-    println(size(matrix))
 
     # iterate through constraints to fill up the matrix
     num_helper = 0
@@ -167,10 +164,93 @@ function buildMatrix(model::Model)
         # absolute term
         matrix[i + num_less + num_great, end] = con.set.value
     end
-    return matrix
+    obj = zeros(num_helper)
+    return matrix, obj, vars, num_var, num_helper
+end
+
+# find max value in an array and return it's index
+function findMax(arr::Array)
+    len = length(arr)
+    if len == 1
+        return 1
+    elseif len > 1
+        max = 1
+        for i in 2:len
+            if arr[i] > arr[max]
+                max = i
+            end
+        end
+        return max
+    end
+    return 0
+end
+
+function findMin(arr::Array)
+    return findMax(-arr)
 end
 
 function solve(model::Model)
-    matrix = buildMatrix(model)
-    println(matrix)
+    # get the objctive function
+    f = objective_function(model)
+
+    #make a matrix, pass info on variables
+    # matrix - simplex matrix
+    # obj - coefficient of the objective function
+    # vars - dictionary of variable names and their indexes
+    # num_var - number of variables in the problem
+    # num_hvar - number of helper variables
+    matrix, obj, vars, num_var, num_hvar = buildMatrix(model)
+
+    # create an array out of the objective function and helping all_variables
+    fa = zeros(num_var + num_hvar)
+    for i in 1:length(f.terms.keys)
+        index = vars[ f.terms.keys[i] ]
+        fa[index] = f.terms.vals[i]
+    end
+
+    obj_sense = objective_sense(model)
+    if obj_sense == MOI.MAX_SENSE
+        # Max
+        # dont do anything?
+    elseif obj_sense == MOI.MIN_SENSE
+        # Min
+        # flip the function (f=-f)
+    else
+        # can this even occour?
+        print("Objective sense has to be either Min or Max")
+        return
+    end
+
+    zj = zeros(num_var + num_hvar)
+    delta_j = fa
+
+    highest_dj = findMax(delta_j)
+    Bi = zeros(length(matrix[:,end]))
+    for i in 1:length(Bi)
+        Bi[i] = matrix[i, end] / matrix[i, highest_dj]
+    end
+    lowest_Bi = findMin(Bi)
+
+
+
+    #  calc delta_j
+    # for i in 1:length(fa)
+    #     delta_j[i] = fa[i] - zj[i]
+    # end
+
+    # show what's going on
+    println("Problem:")
+    # objective function
+    println("    ", fa)
+    # simplex matrix
+    for i in 1:size(matrix, 1)
+        print(obj[i], " ")
+        println(matrix[i,:])
+    end
+    println("    ", zj)
+    println("    ", delta_j)
+    println(Bi)
+    # println(vars)
+    # println("vars: ", num_var)
+    # println("hvars: ", num_hvar)
 end
