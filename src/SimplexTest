@@ -3,18 +3,40 @@
 using JuMP
 include("Simplex.jl")
 
-model = Model()
+function exampleMax()
+    model = Model()
 
-@variable(model, 0 <= x1 )
-@variable(model, 0 <= x2 )
+    @variable(model, 0 <= x1 )
+    @variable(model, 0 <= x2 )
 
-@objective(model, Max, 340*x1 + 404*x2 )
+    @objective(model, Max, 340*x1 + 404*x2 )
 
-@constraint(model, 420x1 + 760x2 <= 5480.0)
-@constraint(model, 9x1 + 5x2 <= 61.0)
-# @constraint(model, 1x1 + 2x2 >= 3.0)
-# @constraint(model, 5x1 + 6x2 == 8.0)
+    @constraint(model, 420x1 + 760x2 <= 5480.0)
+    @constraint(model, 9x1 + 5x2 <= 61.0)
 
-showModel(model)
-println()
-solve(model)
+    clearconsole()
+    showModel(model)
+    println()
+    solve(model)
+end
+
+function exampleMin()
+    model = Model()
+
+    @variable(model, 0 <= x1 )
+    @variable(model, 0 <= x2 )
+
+    @objective(model, Min, x1 + x2 )
+
+    @constraint(model, 1x1 + 3x2 >= 6.0)
+    @constraint(model, 1x1 + 1x2 >= 4.0)
+    @constraint(model, 5x1 + 1x2 >= 8.0)
+
+    clearconsole()
+    showModel(model)
+    println()
+    solve(model)
+end
+
+exampleMax()
+exampleMin()
