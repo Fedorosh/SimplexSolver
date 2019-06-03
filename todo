@@ -1,9 +1,9 @@
 Algorytm
-    Dodaj śledzenie jak są poukładane zmienne w bazie i liczenie wartości funkcji f_val(fa)
-    Przetestuj inne przykłady
-    Przenieś warunek na max i min do buildMatrix()
-    Wyczyść kod - porozdzielaj kod na nowe metody
-    Dodaj opisy metod i zmień ich nazwy by oznaczyć, które są prywatne
-    Pousuwaj niepotrzebne komentarze
+    Dodaj śledzenie jak są poukładane zmienne w bazie (przy zerowaniu kolumny i wpisywaniu 1)
+    (powinny być x2 = 5, x1 = 4)
+    Minimum nie działa!
+    Dowiedz się jak przekazuje się solver w konstruktorze Model()
+    Zrób z tego klasę, fork JuMP'a
+    Wyczyść kod, zmień nazwy prywatnych funkcji
 Generyczność
     Dorób obsługę większej ilości typów? (nie tylko bin, int, lower_bound, etc)

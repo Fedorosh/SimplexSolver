@@ -71,30 +71,29 @@ function  showVarConstr(model::Model)
     end
 end
 
+# print the objective and constriants
 function showModel(model::Model)
-    clearconsole()
     println("Objective:")
     showObj(model)
     println()
-    println("Variable constraints:")
-    showVarConstr(model)
-    println()
     println("Constraints:")
+    showVarConstr(model)
     showConstr(model)
 end
 
+# for debugging purposes
 function showProblem(fa, matrix, obj, zj, delta_j, Bi)
     println("Problem:")
     # objective function
-    println("    ", fa)
+    println("   ", fa)
     # simplex matrix
     for i in 1:size(matrix, 1)
         print(obj[i], " ")
         println(matrix[i,:])
     end
     println("    ", zj)
-    println("    ", delta_j)
-    println(Bi)
+    println("    ", delta_j, "  fval = ", f_val(matrix, obj))
+    # println(Bi)
 end
 
 function addKeys(vars, constraints, number_of_constraints)
@@ -108,6 +107,7 @@ function addKeys(vars, constraints, number_of_constraints)
     end
 end
 
+# make a matrix, pass info on variables
 function buildMatrix(model::Model)
     # get all constraints
     less_than_constraints = all_constraints(model, GenericAffExpr{Float64,VariableRef}, MOI.LessThan{Float64})
@@ -212,15 +212,17 @@ function foundOptimum(arr::Array)
     return true
 end
 
-function f_val(fa)
-    
+function f_val(matrix, obj)
+    sum = 0
+    for i in 1:length(obj)
+        sum += obj[i] * matrix[i,end]
+    end
+    return sum
 end
 
 function solve(model::Model)
-    # get the objctive function
     f = objective_function(model)
 
-    # make a matrix, pass info on variables
     # matrix - simplex matrix
     # obj - coefficient of the objective function
     # vars - dictionary of variable names and their indexes
@@ -229,24 +231,18 @@ function solve(model::Model)
     matrix, obj, vars, num_var, num_hvar = buildMatrix(model)
 
     # create an array out of the objective function and helping all_variables
-    fa = zeros(num_var + num_hvar)
-    for i in 1:length(f.terms.keys)
-        index = vars[ f.terms.keys[i] ]
-        fa[index] = f.terms.vals[i]
-    end
-
-    # move this to buildMatrix()
     obj_sense = objective_sense(model)
-    if obj_sense == MOI.MAX_SENSE
-        # Max
-        # dont do anything?
-    elseif obj_sense == MOI.MIN_SENSE
-        # Min
-        # flip the function (f=-f)
-    else
-        # can this even occour?
-        print("Objective sense has to be either Min or Max")
-        return
+    fa = zeros(num_var + num_hvar)
+    let flip = 1
+        if obj_sense == MOI.MIN_SENSE
+            flip = -1
+        end
+        for i in 1:length(f.terms.keys)
+            index = vars[ f.terms.keys[i] ]
+            # see if this will always work
+            # fa[i] = flip * f.terms.vals[i]
+            fa[index] = flip * f.terms.vals[i]
+        end
     end
 
     zj = zeros(num_var + num_hvar)
@@ -290,20 +286,19 @@ function solve(model::Model)
         matrix[:,  highest_dj] = zeros( length(matrix[:,  highest_dj]) )
         matrix[lowest_Bi, highest_dj] = 1
 
-        # calc zj
+        # calc zj and delta_j
         zj = zeros(length(zj))
         for i in 1:length(zj)
             for j in 1:length(matrix[:,1])
                 zj[i] += obj[j] * matrix[j,i]
             end
         end
-
-        # calc delta_j
         for i in 1:length(fa)
             delta_j[i] = fa[i]
             delta_j[i] -= zj[i]
         end
 
+        # find key row and column
         highest_dj = findMax(delta_j)
         Bi = zeros(length(matrix[:,end]))
         for i in 1:length(Bi)
@@ -311,8 +306,11 @@ function solve(model::Model)
         end
         lowest_Bi = findMin(Bi)
         iter += 1
+
+        # print simplex table
+        # add optional argument with a default value to turn this on/off
+        # or delete this
         println("Iteration nr ", iter)
         showProblem(fa, matrix, obj, zj, delta_j, Bi)
-        println()
     end
 end
