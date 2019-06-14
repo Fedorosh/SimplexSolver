@@ -24,7 +24,7 @@ println()
 solve(model)
 
 # Output:
-
+```
 showModel():
 
 Objective:
@@ -47,3 +47,4 @@ Problem:
     [0.0, 0.0, -0.408439, -18.7173]  fval = 3380.0
 Column: 1
 Row: 2
+```
