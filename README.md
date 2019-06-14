@@ -3,7 +3,7 @@ Projekt stworzony na zajęcia z Metod Optymalizacji
 
 # Przykład użycia:
 
-using JuMP
+"using JuMP
 include("Simplex.jl") // include this
 
 model = Model() // no argument needed in model constructor
@@ -14,7 +14,7 @@ model = Model() // no argument needed in model constructor
 @objective(model, Max, 340*x1 + 404*x2 )
 
 @constraint(model, 420x1 + 760x2 <= 5480.0)
-@constraint(model, 9x1 + 5x2 <= 61.0)
+@constraint(model, 9x1 + 5x2 <= 61.0)"
 
 // pass model object to the 2 fuctions that user interface consists of as of now
 showModel(model)
