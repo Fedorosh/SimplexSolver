@@ -1,7 +1,7 @@
 # Metody-Optymalzacji
 Projekt stworzony na zajęcia z Metod Optymalizacji
 
-Przykład użycia:
+# Przykład użycia:
 
 using JuMP
 include("Simplex.jl") // include this
@@ -21,9 +21,10 @@ showModel(model)
 println()
 solve(model)
 
-Output:
+# Output:
 
-showModel:
+showModel():
+
 Objective:
 Max: 340 x1 + 404 x2
 
@@ -33,7 +34,8 @@ Constraints:
 420.0x1 + 760.0x2 <= 5480.0
 9.0x1 + 5.0x2 <= 61.0
 
-solve:
+solve():
+
 Iteration nr 3
 Problem:
     [340.0, 404.0, 0.0, 0.0]
