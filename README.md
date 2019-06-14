@@ -4,9 +4,9 @@ Projekt stworzony na zajęcia z Metod Optymalizacji
 Przykład użycia:
 
 using JuMP
-include("Simplex.jl")
+include("Simplex.jl") // include this
 
-model = Model()
+model = Model() // no argument needed in model constructor
 
 @variable(model, 0 <= x1 )
 @variable(model, 0 <= x2 )
@@ -16,6 +16,7 @@ model = Model()
 @constraint(model, 420x1 + 760x2 <= 5480.0)
 @constraint(model, 9x1 + 5x2 <= 61.0)
 
+// pass model object to the 2 fuctions that user interface consists of as of now
 showModel(model)
 println()
 solve(model)
